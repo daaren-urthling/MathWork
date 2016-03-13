@@ -22,41 +22,30 @@
   }
 });
     }
-	function doSet() {
-      editor.setMathML("<math><mfrac><mn>1</mn><mi>x</mi></mfrac></math>");
-    }
-	function doGet() {
-      alert(editor.getMathML());
-    }
-    function doPrint() {
-        var expr = editor.getMathML();
-        window.open("http://www.wiris.net/demo/editor/render.svg?mml="+expr);
-      }
       function doPreview() {
-        var img = document.getElementById("preview");
         var expr = editor.getMathML();
-        var src = "http://www.wiris.net/demo/editor/render?mml="+expr;
-        img.src="http://www.wiris.net/demo/editor/render?mml="+expr;
-        var img = document.getElementById("preview2");
-        img.src="http://www.wiris.net/demo/editor/render.svg?mml= "+expr;
-        // var path=document.getElementById("path");
-        // path.innerText="http://www.wiris.net/demo/editor/render.svg?mml= "+expr;
         var prev=document.getElementById("prev");
         prev.innerHTML=expr;
         MathJax.Hub.Queue(["Typeset",MathJax.Hub,"prev"]);
       }
+      function doCopy() {
+        var expr = editor.getMathML();
+        var mathML = document.querySelector('#mathML');
+        mathML.innerText=expr;
+        document.getSelection().removeAllRanges();
+        range= document.createRange();
+        range.selectNode(mathML);
+        document.getSelection().addRange(range);
+        document.execCommand('copy');
+        document.getSelection().removeAllRanges();
+      }
     </script>
   </head>
   <body>
-    <div style="width:500px;height:300px" id="editorContainer"></div>
-	<a href="#" onclick="doSet()">set</a>
-	<a href="#" onclick="doGet()">get</a>
-  <a href="#" onclick="doPrint()">print</a>
-  <a href="#" onclick="doPreview()">preview</a>
-  <img id="preview" src="">
-  <img id="preview2" src="">
-  <p id='path'></p>
+    <div style="width:100%;height:500px" id="editorContainer"></div>
+	<a href="#" onclick="doCopy()">copy</a>
   <div id='prev'></div>
+  <div style="color:#FFFFFF" id='mathML'>-- expression MathML here --</div>
 
   </body>
 </html>
