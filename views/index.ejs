@@ -1,0 +1,62 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <script src="http://www.wiris.net/demo/editor/editor"></script>
+    <script type="text/javascript" async
+      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_CHTML">
+    </script>
+	<script>
+	var editor;
+    window.onload = function () {
+      editor = com.wiris.jsEditor.JsEditor.newInstance({
+	    'language': 'en'
+      });
+	  editor.insertInto(document.getElementById('editorContainer'));
+    MathJax.Hub.Config({
+  CommonHTML: {
+    scale: 200
+  },
+  "HTML-CSS": {
+    preferredFont: "TeX"
+  }
+});
+    }
+	function doSet() {
+      editor.setMathML("<math><mfrac><mn>1</mn><mi>x</mi></mfrac></math>");
+    }
+	function doGet() {
+      alert(editor.getMathML());
+    }
+    function doPrint() {
+        var expr = editor.getMathML();
+        window.open("http://www.wiris.net/demo/editor/render.svg?mml="+expr);
+      }
+      function doPreview() {
+        var img = document.getElementById("preview");
+        var expr = editor.getMathML();
+        var src = "http://www.wiris.net/demo/editor/render?mml="+expr;
+        img.src="http://www.wiris.net/demo/editor/render?mml="+expr;
+        var img = document.getElementById("preview2");
+        img.src="http://www.wiris.net/demo/editor/render.svg?mml= "+expr;
+        // var path=document.getElementById("path");
+        // path.innerText="http://www.wiris.net/demo/editor/render.svg?mml= "+expr;
+        var prev=document.getElementById("prev");
+        prev.innerHTML=expr;
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub,"prev"]);
+      }
+    </script>
+  </head>
+  <body>
+    <div style="width:500px;height:300px" id="editorContainer"></div>
+	<a href="#" onclick="doSet()">set</a>
+	<a href="#" onclick="doGet()">get</a>
+  <a href="#" onclick="doPrint()">print</a>
+  <a href="#" onclick="doPreview()">preview</a>
+  <img id="preview" src="">
+  <img id="preview2" src="">
+  <p id='path'></p>
+  <div id='prev'></div>
+
+  </body>
+</html>
