@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 fs = require("fs");
 
-var filesPath = "/public/files";
+var filesPath = "../public/files";
 
 /* GET file list */
 router.get('/', function(req, res, next) {
