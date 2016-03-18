@@ -4,6 +4,14 @@ fs = require("fs");
 
 var filesPath = "../public/files";
 
+router.setFilePath = function (env) {
+  if (env === 'development') {
+    filesPath = "./public/files/";
+  } else {
+    filesPath = "../public/files/";
+  }
+};
+
 /* GET file list */
 router.get('/', function(req, res, next) {
   fs.readdir(filesPath, function(err, files) {
@@ -21,7 +29,7 @@ router.get('/:name', function(req, res, next) {
 router.post('/', function(req, res, next) {
     console.log(req.body.name);
     console.log(req.body.content);
-    fs.writeFile(filesPath + '/' + req.body.name, req.body.content, { flag: 'w'}, function (err) {
+    fs.writeFile(filesPath + req.body.name, req.body.content, { flag: 'w'}, function (err) {
         console.log('saving ...');
         if (err) {
             console.log(err);

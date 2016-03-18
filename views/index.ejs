@@ -14,9 +14,20 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body  ng-controller="EditorController">
-    <div style="display:block"> <input type="text" ng-model="exerciseName"></div>
+    <div style="display:block">
+      <input ng-disabled="isEditMode" type="text" ng-model="exercise">
+      <button ng-disabled="isEditMode" ng-click="onNewExercise()">Nuovo</button>
+      <select
+           ng-disabled="isEditMode" ng-model="solvedExercise" ng-options="opt as opt for opt in solvedExercises">
+      </select>
+      <button  ng-disabled="isEditMode" ng-click="onSolvedExerciseChosen()">Correggi</button></br>
+    </div>
     <div style="display:block; width:100%;height:500px" id="editorContainer"></div>
-	<div style="display:block"> <button ng-click="onSaveClicked()">Save</button></div>
+	<div style="display:block">
+    <button  ng-disabled="!isEditMode" ng-click="onSaveClicked(true)">Salva</button>
+    <button  ng-disabled="!isEditMode" ng-click="onSaveClicked(false)">Finito</button>
+    <button  ng-disabled="!isEditMode" ng-click="onCancelClicked()">Abbandona</button>
+  </div>
   <div id='prev'></div>
   <div style="color:#FFFFFF" id='mathML'>-- expression MathML here --</div>
 
