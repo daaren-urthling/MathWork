@@ -2,7 +2,23 @@ var app = angular.module("MathWork", []);
 
 app.controller('EditorController', ['$scope', '$http', function ($scope, $http) {
 
-$scope.isEditMode = false;
+function setEditMode(inEdit) {
+  var headerContainer = angular.element( document.querySelector( '#headerContainer' ) );
+  var editorContainer = angular.element( document.querySelector( '#editorContainer' ) );
+  var footerContainer = angular.element( document.querySelector( '#footerContainer' ) );
+  if (inEdit) {
+    headerContainer.addClass("disableddiv");
+    editorContainer.removeClass("disableddiv");
+    footerContainer.removeClass("disableddiv");
+  } else {
+    headerContainer.removeClass("disableddiv");
+    editorContainer.addClass("disableddiv");
+    footerContainer.addClass("disableddiv");
+  }
+  $scope.isEditMode = inEdit;
+}
+
+setEditMode(false);
 
 $scope.query = function(){
   $http.get('/manageFile/').
@@ -26,7 +42,7 @@ $scope.onSolvedExerciseChosen = function () {
       editor.setMathML(data);
       $scope.exercise = $scope.solvedExercise;
       $scope.solvedExercise = "";
-      $scope.isEditMode = true;
+      setEditMode(true);
     }).
     error(function(data, status, headers, config) {
       console.log(status);
@@ -36,13 +52,13 @@ $scope.onSolvedExerciseChosen = function () {
 $scope.onNewExercise = function () {
   if (!$scope.exercise || $scope.exercise.lenght < 1) return;
   editor.setMathML("<math></math>");
-  $scope.isEditMode = true;
+  setEditMode(true);
 };
 
 $scope.onCancelClicked = function () {
   editor.setMathML("<math></math>");
   $scope.exercise = '';
-  $scope.isEditMode = false;
+  setEditMode(false);
 };
 
 $scope.onSaveClicked = function (partial) {
@@ -55,7 +71,7 @@ $scope.onSaveClicked = function (partial) {
         console.log(data);
         if (!partial) {
           editor.setMathML("<math></math>");
-          $scope.isEditMode = false;
+          setEditMode(false);
           $scope.solvedExercises =   $scope.query();
           $scope.exercise = '';
         }

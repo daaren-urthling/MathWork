@@ -6,3 +6,8 @@ body {
 a {
   color: #00B7FF;
 }
+
+.disableddiv {
+    pointer-events: none;
+    opacity: 0.4;
+}
