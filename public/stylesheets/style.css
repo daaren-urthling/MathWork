@@ -1,5 +1,6 @@
 body {
-  padding: 50px;
+  padding-left: 50px;
+  padding-right: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
@@ -10,4 +11,17 @@ a {
 .disableddiv {
     pointer-events: none;
     opacity: 0.4;
+}
+
+#mathwork-brand {
+  font-family: "Consolas";
+  color: black;
+  padding-left: 0;
+  font-size: xx-large;
+}
+
+#mathwork-nav {
+  padding-left: 0;
+  background-image: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0)), url('/images/background.png');
+;
 }

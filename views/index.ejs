@@ -2,6 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html ng-app="MathWork">
   <head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-route.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-resource.js"></script>
@@ -14,19 +15,27 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body  ng-controller="EditorController">
+    <div id="mathwork-nav" class="container-fluid">
+      <a id="mathwork-brand" class="navbar-brand" href="#">Mathwork</a>
+      <!-- <ul class="nav nav-tabs">
+        <li role="presentation" class="active"><a href="#">Svolgi</a></li>
+        <li role="presentation"><a href="#">Stampa</a></li>
+      </ul> -->
+    </div>
     <div id="headerContainer" style="display:block">
       <input type="text" ng-model="exercise">
       <button ng-click="onNewExercise()">Inizia</button>
       <select
            ng-model="solvedExercise" ng-options="opt as opt for opt in solvedExercises">
       </select>
-      <button ng-click="onSolvedExerciseChosen()">Correggi</button></br>
+      <button ng-click="onSolvedExerciseChosen()">Modifica</button></br>
     </div>
     <div style="display:block; width:100%;height:500px" id="editorContainer"></div>
 	<div id="footerContainer" style="display:block">
     <button ng-click="onSaveClicked(true)">Salva</button>
     <button ng-click="onSaveClicked(false)">Finito</button>
     <button ng-click="onCancelClicked()">Abbandona</button>
+    <button confirmed-click="onDeleteClicked()" ng-confirm-click="Sei sicuro di voler cancellare questo esercizio?">Cancella</button>
   </div>
   <div id='prev'></div>
   <div style="color:#FFFFFF" id='mathML'>-- expression MathML here --</div>

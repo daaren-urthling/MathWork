@@ -41,4 +41,17 @@ router.post('/', function(req, res, next) {
 
 });
 
+/* POST file */
+router.post('/delete', function(req, res, next) {
+  console.log(req.body.name);
+  fs.unlink(filesPath + req.body.name, function(err) {
+    if (err) {
+        console.log(err);
+        res.send({retCode : 1, retMsg : " Error:" + err});
+    } else {
+        res.send({retCode : 0, retMsg : 'The server has removed ' + req.body.name});
+    }
+  });
+});
+
 module.exports = router;

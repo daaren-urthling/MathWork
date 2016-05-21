@@ -82,7 +82,37 @@ $scope.onSaveClicked = function (partial) {
     });
 };
 
+$scope.onDeleteClicked = function () {
+  if (!$scope.exercise || $scope.exercise.lenght < 1) return;
+  $http.post('/manageFile/delete', {name: $scope.exercise }).
+  success(function(data, status, headers, config) {
+    editor.setMathML("<math></math>");
+    $scope.exercise = '';
+    setEditMode(false);
+  }).
+  error(function(data, status, headers, config) {
+      console.log("something wrong there");
+      console.log(data, status);
+  });
+};
+
 }]);
+
+app.directive('ngConfirmClick', [
+        function(){
+            return {
+                link: function (scope, element, attr) {
+                    var msg = attr.ngConfirmClick || "Are you sure?";
+                    var clickAction = attr.confirmedClick;
+                    element.bind('click',function (event) {
+                        if ( window.confirm(msg) ) {
+                            scope.$eval(clickAction);
+                        }
+                    });
+                }
+            };
+    }]);
+
 
 // function doPreview() {
 // var expr = editor.getMathML();
