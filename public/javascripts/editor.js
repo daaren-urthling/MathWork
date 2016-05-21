@@ -89,6 +89,7 @@ $scope.onDeleteClicked = function () {
     editor.setMathML("<math></math>");
     $scope.exercise = '';
     setEditMode(false);
+    $scope.solvedExercises =   $scope.query();
   }).
   error(function(data, status, headers, config) {
       console.log("something wrong there");
