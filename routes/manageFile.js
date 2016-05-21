@@ -15,6 +15,10 @@ router.setFilePath = function (env) {
 /* GET file list */
 router.get('/', function(req, res, next) {
   fs.readdir(filesPath, function(err, files) {
+    files.sort(function(a, b) {
+                   return fs.statSync(filesPath + a).mtime.getTime() -
+                          fs.statSync(filesPath + b).mtime.getTime();
+               });
     res.send(files);
   });
 });
