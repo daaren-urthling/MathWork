@@ -2,43 +2,68 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html ng-app="MathWork">
   <head>
+    <link rel="icon" type="img/ico" href="favicon.ico">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-route.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-resource.js"></script>
+    <script src="/javascripts/ui-bootstrap-tpls-0.13.3.js"></script>
     <script src="http://www.wiris.net/demo/editor/editor"></script>
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_CHTML">
     </script>
-    <script type="text/javascript"src="/javascripts/mathWork.js"></script>
-	<script type="text/javascript"src="/javascripts/editor.js"></script>
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
-  <body  ng-controller="EditorController">
+  <body>
+    <script type="text/javascript"src="/javascripts/mathWork.js"></script>
+
     <div id="mathwork-nav" class="container-fluid">
-      <a id="mathwork-brand" class="navbar-brand" href="#">Mathwork</a>
-      <!-- <ul class="nav nav-tabs">
-        <li role="presentation" class="active"><a href="#">Svolgi</a></li>
-        <li role="presentation"><a href="#">Stampa</a></li>
-      </ul> -->
+      <a id="mathwork-brand" class="navbar-brand" href="#/">Mathwork</a>
     </div>
-    <div id="headerContainer" style="display:block">
-      <input type="text" ng-model="exercise">
-      <button ng-click="onNewExercise()">Inizia</button>
-      <select
-           ng-model="solvedExercise" ng-options="opt as opt for opt in solvedExercises">
-      </select>
-      <button ng-click="onSolvedExerciseChosen()">Modifica</button></br>
-    </div>
-    <div style="display:block; width:100%;height:500px" id="editorContainer"></div>
-	<div id="footerContainer" style="display:block">
-    <button ng-click="onSaveClicked(true)">Salva</button>
-    <button ng-click="onSaveClicked(false)">Finito</button>
-    <button ng-click="onCancelClicked()">Abbandona</button>
-    <button confirmed-click="onDeleteClicked()" ng-confirm-click="Sei sicuro di voler cancellare questo esercizio?">Cancella</button>
-  </div>
-  <!-- <div id='prev'></div>
-  <div style="color:#FFFFFF" id='mathML'> expression MathML here </div>
- -->
+
+    <ng-view></ng-view>
+
+    <script>
+      //---------------
+      // Main app
+      //---------------
+
+      var app = angular.module("MathWork", ['ngRoute', 'ui.bootstrap']);
+
+    </script>
+
+    <!-- Controllers -->
+	  <script type="text/javascript"src="/ui/ui_editor.js"></script>
+	  <script type="text/javascript"src="/ui/ui_login.js"></script>
+
+    <script>
+     app.run(function($rootScope, $location) {
+        $rootScope.$on( "$routeChangeStart", function(event, next, current) {
+          if (next && next.originalPath === "/editor") {
+            // no logged user, redirect to /login
+            if (!$rootScope.loggedUser) {
+              $location.path("/");
+            }
+          }
+        })
+      });
+
+      //---------------
+      // Routes
+      //---------------
+
+      //=============================================================================
+      app.config(['$routeProvider', function ($routeProvider, $location) {
+        $routeProvider
+          .when('/', {
+            templateUrl: '/ui/ui_login.html',
+            controller: 'LoginController'
+          })
+          .when('/editor', {
+            templateUrl: '/ui/ui_editor.html',
+            controller: 'EditorController'
+          })
+      }]);
+    </script>
   </body>
 </html>

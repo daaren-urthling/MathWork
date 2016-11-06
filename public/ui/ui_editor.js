@@ -1,6 +1,29 @@
-var app = angular.module("MathWork", []);
+//=============================================================================
+// EditorController - controller for ui_editor.html
+//=============================================================================
+var editor;
 
-app.controller('EditorController', ['$scope', '$http', function ($scope, $http) {
+var initMathJax = function() {
+      editor = com.wiris.jsEditor.JsEditor.newInstance({
+    'language': 'en'
+    });
+    editor.insertInto(document.getElementById('editorContainer'));
+
+    MathJax.Hub.Config({
+        CommonHTML : {
+            scale: 200
+        },
+        "HTML-CSS": {
+            preferredFont: "TeX"
+        }
+    });
+}
+
+app.controller('EditorController', ['$scope', '$http', '$rootScope', function ($scope, $http, $rootScope) {
+
+if (!editor) {
+  initMathJax();
+}
 
 function setEditMode(inEdit) {
   var headerContainer = angular.element( document.querySelector( '#headerContainer' ) );
@@ -21,7 +44,7 @@ function setEditMode(inEdit) {
 setEditMode(false);
 
 $scope.query = function(){
-  $http.get('/manageFile/').
+  $http.get('/manageFile/', {params: {user: $rootScope.loggedUser }}).
     success(function(data, status, headers, config) {
       $scope.solvedExercises = data;
       console.log(data);
@@ -36,7 +59,7 @@ $scope.onSolvedExerciseChosen = function () {
   if (!$scope.solvedExercise || $scope.solvedExercise.lenght < 1) return;
 
   console.log("downloading " + $scope.solvedExercise);
-  $http.get('/manageFile/' + $scope.solvedExercise).
+  $http.get('/manageFile/download', {params: {user: $rootScope.loggedUser, name:$scope.solvedExercise}}).
     success(function(data, status, headers, config) {
       console.log(data);
       editor.setMathML(data);
@@ -66,7 +89,7 @@ $scope.onSaveClicked = function (partial) {
     console.log("save " + $scope.exercise);
     var expr = editor.getMathML();
 
-    $http.post('/manageFile', {name: $scope.exercise, content: expr }).
+    $http.post('/manageFile', {user: $rootScope.loggedUser, name: $scope.exercise, content: expr }).
     success(function(data, status, headers, config) {
         console.log(data);
         if (!partial) {
@@ -84,7 +107,7 @@ $scope.onSaveClicked = function (partial) {
 
 $scope.onDeleteClicked = function () {
   if (!$scope.exercise || $scope.exercise.lenght < 1) return;
-  $http.post('/manageFile/delete', {name: $scope.exercise }).
+  $http.post('/manageFile/delete', {user: $rootScope.loggedUser, name: $scope.exercise }).
   success(function(data, status, headers, config) {
     editor.setMathML("<math></math>");
     $scope.exercise = '';
