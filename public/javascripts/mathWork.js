@@ -15,3 +15,20 @@
 //         }
 //     });
 // }
+
+//=============================================================================
+// TabController - controller for the tabber
+//=============================================================================
+
+app.controller('TabController', ['$scope', function ($scope) {
+    $scope.current = 1;
+    
+    $scope.setCurr = function (id) {
+        $scope.current = id;
+    };
+
+    $scope.isCurr = function (id) {
+        return $scope.current === id;
+    };
+    
+}]);

@@ -21,9 +21,9 @@ var initMathJax = function() {
 
 app.controller('EditorController', ['$scope', '$http', '$rootScope', function ($scope, $http, $rootScope) {
 
-if (!editor) {
+//if (!editor) {
   initMathJax();
-}
+//}
 
 function setEditMode(inEdit) {
   var headerContainer = angular.element( document.querySelector( '#headerContainer' ) );

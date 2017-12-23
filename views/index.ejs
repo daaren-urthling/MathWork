@@ -15,14 +15,6 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <script type="text/javascript"src="/javascripts/mathWork.js"></script>
-
-    <div id="mathwork-nav" class="container-fluid">
-      <a id="mathwork-brand" class="navbar-brand" href="#/">Mathwork</a>
-    </div>
-
-    <ng-view></ng-view>
-
     <script>
       //---------------
       // Main app
@@ -31,15 +23,27 @@
       var app = angular.module("MathWork", ['ngRoute', 'ui.bootstrap']);
 
     </script>
+    <script type="text/javascript"src="/javascripts/mathWork.js"></script>
 
+    <div id="mathwork-nav" class="container-fluid">
+      <a id="mathwork-brand" class="navbar-brand" href="#/">Mathwork</a>
+    </div>
+    <ul class="nav nav-tabs" ng-controller="TabController">
+      <li role="presentation" ng-class="{active:isCurr(1)}"><a ng-click="setCurr(1)" href="#/editor">Editor</a></li>
+      <li role="presentation" ng-class="{active:isCurr(2)}"><a ng-click="setCurr(2)" href="#/cartesian">Cartesian</a></li>
+    </ul>
+
+    <ng-view></ng-view>
+    
     <!-- Controllers -->
 	  <script type="text/javascript"src="/ui/ui_editor.js"></script>
+	  <script type="text/javascript"src="/ui/ui_cartesian.js"></script>
 	  <script type="text/javascript"src="/ui/ui_login.js"></script>
 
     <script>
      app.run(function($rootScope, $location) {
         $rootScope.$on( "$routeChangeStart", function(event, next, current) {
-          if (next && next.originalPath === "/editor") {
+          if (next && (next.originalPath === "/editor" || next.originalPath === "/cartesian")) {
             // no logged user, redirect to /login
             if (!$rootScope.loggedUser) {
               $location.path("/");
@@ -62,6 +66,10 @@
           .when('/editor', {
             templateUrl: '/ui/ui_editor.html',
             controller: 'EditorController'
+          })
+          .when('/cartesian', {
+            templateUrl: '/ui/ui_cartesian.html',
+            controller: 'CartesianController'
           })
       }]);
     </script>
