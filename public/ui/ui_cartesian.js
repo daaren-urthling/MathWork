@@ -12,7 +12,7 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', function
 
     var maxX = canvas.width / 2;
     var maxY = canvas.height / 2;
-    $scope.nMax = 12;
+    $scope.nMax = 10;
     var ctx = canvas.getContext("2d");
     ctx.setTransform(1, 0, 0, 1, maxX, maxY);
 
@@ -105,10 +105,15 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', function
   };
     
   //-----------------------------------------------------------------------------
+  $scope.drawPoint = function(x, y) { 
+      _pointAt(x, y);
+  }
+      
+  //-----------------------------------------------------------------------------
   $scope.onDrawClicked = function() {
     $scope.drawPolygon([
         {x:-0, y:0, l:'A'}, 
-        {x:2, y:11, l:'B'}, 
+        {x:2, y:9, l:'B'}, 
         {x:-3, y:-6, l:'C'}
     ]);
   };
