@@ -95,7 +95,6 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', function
 
   //-----------------------------------------------------------------------------
   $scope.clearPlan = function () {
-
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -129,7 +128,22 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', function
   }
       
   //-----------------------------------------------------------------------------
+  function _rescale() {
+    var max = 0;
+    for (p = 0; p < $scope.points.length; p++) {
+        if (Math.abs($scope.points[p].x) > max) {
+            max = Math.ceil(Math.abs($scope.points[p].x));
+        }
+        if (Math.abs($scope.points[p].y) > max) {
+            max = Math.ceil(Math.abs($scope.points[p].y));
+        }
+    }
+    $scope.nMax = max + 1;
+  }
+  
+  //-----------------------------------------------------------------------------
   $scope.onDrawClicked = function() {
+    _rescale();
     $scope.clearPlan();
     $scope.drawPolygon($scope.points);
   };
