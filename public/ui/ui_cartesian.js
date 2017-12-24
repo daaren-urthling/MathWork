@@ -16,6 +16,12 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', function
     var ctx = canvas.getContext("2d");
     ctx.setTransform(1, 0, 0, 1, maxX, maxY);
 
+    $scope.points = [
+        {x:-0, y:0, l:'A'}, 
+        {x:2, y:9, l:'B'}, 
+        {x:-3, y:-6, l:'C'}
+    ];
+
     //-----------------------------------------------------------------------------
     function _getScale()
     {
@@ -87,6 +93,19 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', function
   $scope.drawPlan();
   $scope.drawMarks();
 
+  //-----------------------------------------------------------------------------
+  $scope.clearPlan = function () {
+
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+
+    ctx.beginPath();
+    $scope.drawPlan();
+    $scope.drawMarks();
+  }
+
   // points = [ {x:x, y:y}, ...]
   //-----------------------------------------------------------------------------
   $scope.drawPolygon = function(points) {
@@ -111,11 +130,13 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', function
       
   //-----------------------------------------------------------------------------
   $scope.onDrawClicked = function() {
-    $scope.drawPolygon([
-        {x:-0, y:0, l:'A'}, 
-        {x:2, y:9, l:'B'}, 
-        {x:-3, y:-6, l:'C'}
-    ]);
+    $scope.clearPlan();
+    $scope.drawPolygon($scope.points);
   };
+  
+  //-----------------------------------------------------------------------------
+  $scope.onAddLineClicked = function() {
+      $scope.points.push({});
+  }
 
 }]);    
