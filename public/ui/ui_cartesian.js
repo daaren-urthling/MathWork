@@ -153,4 +153,14 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', function
       $scope.points.push({});
   }
 
+  //-----------------------------------------------------------------------------
+  $scope.onRemoveLineClicked = function() {
+    $scope.points.splice(-1);
+  }
+
+  //-----------------------------------------------------------------------------
+  $scope.removeLineDisabled = function() {
+    return $scope.points.length <= 3;
+  }
+
 }]);    
