@@ -138,7 +138,7 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', function
             max = Math.ceil(Math.abs($scope.points[p].y));
         }
     }
-    $scope.nMax = max + 1;
+    $scope.nMax = max + Math.ceil(20 / (maxX / max));
   }
   
   //-----------------------------------------------------------------------------
