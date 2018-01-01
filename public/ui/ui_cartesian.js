@@ -7,7 +7,7 @@ var initCartesian = function() {
     canvas = document.getElementById("myCanvas");
 }
 
-app.controller('CartesianController', ['$scope', '$http', '$rootScope', function ($scope, $http, $rootScope) {
+app.controller('CartesianController', ['$scope', '$http', '$rootScope', '$window', function ($scope, $http, $rootScope, $window) {
     initCartesian();
 
     var maxX = canvas.width / 2;
@@ -16,11 +16,17 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', function
     var ctx = canvas.getContext("2d");
     ctx.setTransform(1, 0, 0, 1, maxX, maxY);
 
-    $scope.points = [
-        {x:-0, y:0, l:'A'}, 
-        {x:2, y:9, l:'B'}, 
-        {x:-3, y:-6, l:'C'}
-    ];
+    $scope.points = [];
+
+    if ($window.localStorage && $window.localStorage.getItem('points')) {
+         $scope.points = angular.fromJson($window.localStorage.getItem('points'));
+    } else {
+        $scope.points = [
+            {x:-9, y:-9, l:'A'}, 
+            {x:9, y:-9, l:'B'}, 
+            {x:0, y:9, l:'C'}
+        ];
+    }
 
     //-----------------------------------------------------------------------------
     function _getScale()
@@ -146,6 +152,9 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', function
     _rescale();
     $scope.clearPlan();
     $scope.drawPolygon($scope.points);
+    if ($window.localStorage) {
+        $window.localStorage.setItem('points', angular.toJson($scope.points));
+    }
   };
   
   //-----------------------------------------------------------------------------
