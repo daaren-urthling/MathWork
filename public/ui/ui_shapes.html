@@ -1,0 +1,31 @@
+<div class="container">
+    <div class="col-sm-8">
+        <canvas id="shapesCanvas" width="500" height="500"
+        style="border:1px solid #d3d3d3;">
+        Your browser does not support the canvas element.
+        </canvas>
+    </div>
+    <div class="col-sm-4">
+        <div class="row">
+            <button ng-click="onDrawClicked()">Disegna</button>
+        </div>
+        <div class="row">
+            <table class = "table table-condensed">
+                <tr>
+                    <th class="text-center">Punto</th>
+                    <th class="text-center">X</th>
+                    <th class="text-center">Y</th>
+                </tr>
+                <tr ng-repeat="shape in shapes">
+                    <td><input class="form-control text-center" type="text" ng-model="shape.l" width="20"></td>
+                    <td><input class="form-control text-right" type="text" ng-model="shape.x" width="20"></td>
+                    <td><input class="form-control text-right" type="text" ng-model="shape.y" width="20"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="row">
+                <button ng-click="onAddLineClicked()">+</button>
+                <button ng-click="onRemoveLineClicked()" ng-disabled="removeLineDisabled()">-</button>
+            </div>
+    </div>
+</div>

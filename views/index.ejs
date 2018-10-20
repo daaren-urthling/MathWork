@@ -31,6 +31,7 @@
     <ul class="nav nav-tabs" ng-controller="TabController">
       <li role="presentation" ng-class="{active:isCurr(1)}"><a ng-click="setCurr(1)" href="#/editor">Editor</a></li>
       <li role="presentation" ng-class="{active:isCurr(2)}"><a ng-click="setCurr(2)" href="#/cartesian">Cartesian</a></li>
+      <li role="presentation" ng-class="{active:isCurr(3)}"><a ng-click="setCurr(3)" href="#/shapes">Shapes</a></li>
     </ul>
 
     <ng-view></ng-view>
@@ -38,6 +39,7 @@
     <!-- Controllers -->
 	  <script type="text/javascript"src="/ui/ui_editor.js"></script>
 	  <script type="text/javascript"src="/ui/ui_cartesian.js"></script>
+	  <script type="text/javascript"src="/ui/ui_shapes.js"></script>
 	  <script type="text/javascript"src="/ui/ui_login.js"></script>
 
     <script>
@@ -70,6 +72,10 @@
           .when('/cartesian', {
             templateUrl: '/ui/ui_cartesian.html',
             controller: 'CartesianController'
+          })
+          .when('/shapes', {
+            templateUrl: '/ui/ui_shapes.html',
+            controller: 'ShapesController'
           })
       }]);
     </script>
