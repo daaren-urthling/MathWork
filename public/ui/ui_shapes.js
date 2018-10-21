@@ -16,9 +16,17 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
     var ctx = shapesCanvas.getContext("2d");
     ctx.font="20px Arial";
     ctx.setTransform(1, 0, 0, 1, 0, maxY);
-    // ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     $scope.shapes = [];
+    $scope.showRuler = true;
+
+    $scope.adjustIcons = [
+        'glyphicon glyphicon-move',
+        'glyphicon glyphicon-triangle-left',
+        'glyphicon glyphicon-triangle-bottom',
+        'glyphicon glyphicon-triangle-right',
+        'glyphicon glyphicon-triangle-top'
+    ];
 
     if ($window.localStorage && $window.localStorage.getItem('shapes')) {
          $scope.shapes = angular.fromJson($window.localStorage.getItem('shapes'));
@@ -41,7 +49,8 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
 
     //-----------------------------------------------------------------------------
     function _pointAt(x, y) {
-        ctx.fillRect(x * _getScale() -1,  y * _getScale() -1, 3, 3);
+        ctx.fillRect(x * _getScale() -2,  - y * _getScale() -2, 4, 4);
+
     };
 
     //-----------------------------------------------------------------------------
@@ -55,21 +64,63 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
     };
 
     //-----------------------------------------------------------------------------
-    function _letterFor(point, prev, next) {
+    function _letterForVertex(point, prev, next) {
         if (!point.l)
-        return;
+            return;
         var xShift = 0;
         var yShift = 0;
         if (point.x < prev.x && point.x < next.x)
             xShift = -20;
         else if (point.x > prev.x && point.x > next.x)
-        xShift = 3;
+            xShift = 3;
         else if (point.y < prev.y && point.y < next.y)
-        yShift = 20;
+            yShift = 20;
         else if (point.y > prev.y && point.y > next.y)
-        yShift = -3;
+            yShift = -3;
 
         ctx.fillText(point.l, point.x * _getScale() +xShift, -point.y * _getScale() + yShift);
+    }
+    
+    //-----------------------------------------------------------------------------
+    function _letterForLine(point, other) {
+        if (!point.l)
+            return;
+        var xShift = 0;
+        var yShift = 0;
+        if (point.x < other.x)
+            xShift = -20;
+        else if (point.x > other.x)
+            xShift = 3;
+        else if (point.y < other.y)
+            yShift = 20;
+        else if (point.y > other.y)
+            yShift = -3;
+
+        ctx.fillText(point.l, point.x * _getScale() +xShift, -point.y * _getScale() + yShift);
+    }
+
+    //-----------------------------------------------------------------------------
+    function _letterForPoint(point) {
+        if (!point.l)
+            return;
+        var xShift = 0;
+        var yShift = 0;
+        if (point.adjust === 0)
+            xShift = 6;
+        else if (point.adjust === 1)
+            xShift = -20;
+        else if (point.adjust === 2) {
+            yShift = -25;
+            xShift = -6;
+        }
+        else if (point.adjust === 3)
+            xShift = 6;
+        else if (point.adjust === 4) {
+            yShift = 6;
+            xShift = -6;
+        }
+
+        ctx.fillText(point.l, point.x * _getScale() +xShift, -point.y * _getScale() - yShift);
     }
 
   //-----------------------------------------------------------------------------
@@ -96,8 +147,23 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
     ctx.stroke();
   };
 
+  //-----------------------------------------------------------------------------
+  $scope.drawGrid = function() {
+    ctx.lineWidth=0.05;
+    for (x = 0; x <= maxX / _getScale(); x++ ) {
+      _moveTo(x, maxY);
+      _lineTo(x, 0);
+    }
+    for (y = 0; y <= maxY / _getScale(); y++ ) {
+      _moveTo(maxX, y);
+      _lineTo(0, y);
+    }
+    ctx.stroke();
+  };
+  
   $scope.drawPlan();
   $scope.drawMarks();
+  $scope.drawGrid();
 
   //-----------------------------------------------------------------------------
   $scope.clearPlan = function () {
@@ -106,9 +172,12 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
     ctx.clearRect(0, 0, shapesCanvas.width, shapesCanvas.height);
     ctx.restore();
 
-    ctx.beginPath();
-    $scope.drawPlan();
-    $scope.drawMarks();
+    if ($scope.showRuler) {
+        ctx.beginPath();
+        $scope.drawPlan();
+        $scope.drawMarks();
+        $scope.drawGrid();
+    }
   }
 
   // points = [ {x:x, y:y}, ...]
@@ -124,7 +193,7 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
     for (p = 0; p < shape.points.length; p++) {
       _lineTo(shape.points[p].x, shape.points[p].y);
       var n = (p - 1) % (shape.points.length - 1);
-      _letterFor(shape.points[p], shape.points[(p + shape.points.length - 1 - 1) % (shape.points.length - 1)], shape.points[(p + 1) % (shape.points.length - 1)]);
+      _letterForVertex(shape.points[p], shape.points[(p + shape.points.length - 1 - 1) % (shape.points.length - 1)], shape.points[(p + 1) % (shape.points.length - 1)]);
     }
     _lineTo(shape.points[0].x, shape.points[0].y);
     ctx.stroke();
@@ -132,8 +201,27 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
   };
     
   //-----------------------------------------------------------------------------
-  $scope.drawPoint = function(x, y) { 
-      _pointAt(x, y);
+  $scope.drawLine = function(shape) {
+    if (shape.points.length != 2)
+      return;
+    if (shape.dash)
+        ctx.setLineDash([10, 10]);
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    _moveTo(shape.points[0].x, shape.points[0].y);
+    _lineTo(shape.points[1].x, shape.points[1].y);
+    _letterForLine(shape.points[0], shape.points[1]);
+    _letterForLine(shape.points[1], shape.points[0]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  };
+    
+  //-----------------------------------------------------------------------------
+  $scope.drawPoint = function(shape) {
+    if (shape.points.length != 1)
+      return;
+    _pointAt(shape.points[0].x, shape.points[0].y);
+    _letterForPoint(shape.points[0]);
   }
       
   //-----------------------------------------------------------------------------
@@ -157,7 +245,13 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
     _rescale();
     $scope.clearPlan();
     for (s = 0; s < $scope.shapes.length; s++) {
-        $scope.drawPolygon($scope.shapes[s]);
+        if ($scope.shapes[s].points.length == 1) {
+            $scope.drawPoint($scope.shapes[s]);
+        } else if ($scope.shapes[s].points.length == 2) {
+            $scope.drawLine($scope.shapes[s]);
+        } else {
+            $scope.drawPolygon($scope.shapes[s]);
+        }
     }
     if ($window.localStorage) {
         $window.localStorage.setItem('shapes', angular.toJson($scope.shapes));
@@ -176,7 +270,7 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
 
   //-----------------------------------------------------------------------------
   $scope.removePointDisabled = function(shape) {
-    return shape.points.length <= 3;
+    return shape.points.length <= 1;
   }
 
   //-----------------------------------------------------------------------------
@@ -189,7 +283,7 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
 
   //-----------------------------------------------------------------------------
   $scope.onRemoveShapeClicked = function($index) {
-    $scope.shapes.splice($index);
+    $scope.shapes.splice($index, 1);
   }
 
   //-----------------------------------------------------------------------------

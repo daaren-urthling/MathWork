@@ -8,6 +8,10 @@
     <div class="col-sm-4">
         <div class="row" style="margin-bottom: 20px;">
             <button ng-click="onDrawClicked()">Disegna</button>
+            <div class="pull-right">
+                <input type="checkbox" ng-model="showRuler">
+                <span>quadretti</span>
+            </div>
         </div>
         <div ng-repeat="shape in shapes">
             <div class="row" >
@@ -17,13 +21,15 @@
                 <table class = "table table-condensed">
                     <tr>
                         <th class="text-center">Punto</th>
+                        <th class="text-center"></th>
                         <th class="text-center">X</th>
                         <th class="text-center">Y</th>
                     </tr>
                     <tr ng-repeat="point in shape.points">
-                        <td><input class="form-control text-center" type="text" ng-model="point.l" width="20"></td>
-                        <td><input class="form-control text-right" type="text" ng-model="point.x" width="20"></td>
-                        <td><input class="form-control text-right" type="text" ng-model="point.y" width="20"></td>
+                        <td class="text-center"><span ng-show="shape.points.length === 1" ng-class="adjustIcons[point.adjust ? point.adjust : 0]" ng-click="point.adjust = (point.adjust+1) % 5"></span></td>
+                        <td><input class="form-control text-center" type="text" ng-model="point.l" width="30"></td>
+                        <td><input class="form-control text-right" type="text" ng-model="point.x" width="30"></td>
+                        <td><input class="form-control text-right" type="text" ng-model="point.y" width="30"></td>
                     </tr>
                 </table>
                 <button ng-click="onAddPointClicked(shape)">+</button>
