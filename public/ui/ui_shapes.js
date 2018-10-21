@@ -16,6 +16,7 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
     var ctx = shapesCanvas.getContext("2d");
     ctx.font="20px Arial";
     ctx.setTransform(1, 0, 0, 1, 0, maxY);
+    ctx.translate(0.5, 0.5)
 
     $scope.shapes = [];
     $scope.showRuler = true;
