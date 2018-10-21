@@ -6,26 +6,31 @@
         </canvas>
     </div>
     <div class="col-sm-4">
-        <div class="row">
+        <div class="row" style="margin-bottom: 20px;">
             <button ng-click="onDrawClicked()">Disegna</button>
         </div>
-        <div class="row">
-            <table class = "table table-condensed">
-                <tr>
-                    <th class="text-center">Punto</th>
-                    <th class="text-center">X</th>
-                    <th class="text-center">Y</th>
-                </tr>
-                <tr ng-repeat="shape in shapes">
-                    <td><input class="form-control text-center" type="text" ng-model="shape.l" width="20"></td>
-                    <td><input class="form-control text-right" type="text" ng-model="shape.x" width="20"></td>
-                    <td><input class="form-control text-right" type="text" ng-model="shape.y" width="20"></td>
-                </tr>
-            </table>
-        </div>
-        <div class="row">
-                <button ng-click="onAddLineClicked()">+</button>
-                <button ng-click="onRemoveLineClicked()" ng-disabled="removeLineDisabled()">-</button>
+        <div ng-repeat="shape in shapes">
+            <div class="row" >
+                <input type="checkbox" ng-model="shape.dash">
+                <span>tratteggiato</span>
+                <button class="pull-right" ng-click="onRemoveShapeClicked($index)" ng-disabled="removeShapeDisabled()">Elimina</button>
+                <table class = "table table-condensed">
+                    <tr>
+                        <th class="text-center">Punto</th>
+                        <th class="text-center">X</th>
+                        <th class="text-center">Y</th>
+                    </tr>
+                    <tr ng-repeat="point in shape.points">
+                        <td><input class="form-control text-center" type="text" ng-model="point.l" width="20"></td>
+                        <td><input class="form-control text-right" type="text" ng-model="point.x" width="20"></td>
+                        <td><input class="form-control text-right" type="text" ng-model="point.y" width="20"></td>
+                    </tr>
+                </table>
+                <button ng-click="onAddPointClicked(shape)">+</button>
+                <button ng-click="onRemovePointClicked(shape)" ng-disabled="removePointDisabled(shape)">-</button>
+                <hr>
             </div>
+        </div>
+        <button class="pull-right" ng-click="onAddShapeClicked()">Nuova</button>
     </div>
 </div>

@@ -23,11 +23,14 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
     if ($window.localStorage && $window.localStorage.getItem('shapes')) {
          $scope.shapes = angular.fromJson($window.localStorage.getItem('shapes'));
     } else {
-        $scope.shapes = [
-            {x:0, y:0, l:'A'}, 
-            {x:9, y:0, l:'B'}, 
-            {x:0, y:9, l:'C'}
-        ];
+        $scope.shapes = [{
+            dash: false,
+            points: [
+                {x:0, y:0, l:'A'}, 
+                {x:9, y:0, l:'B'}, 
+                {x:0, y:9, l:'C'}
+            ]
+        }];
     }
 
     //-----------------------------------------------------------------------------
@@ -110,19 +113,22 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
 
   // points = [ {x:x, y:y}, ...]
   //-----------------------------------------------------------------------------
-  $scope.drawPolygon = function(points) {
-    if (points.length < 3)
+  $scope.drawPolygon = function(shape) {
+    if (shape.points.length < 3)
       return;
+    if (shape.dash)
+        ctx.setLineDash([10, 10]);
     ctx.lineWidth=1;
     ctx.beginPath();
-    _moveTo(points[points.length - 1].x, points[points.length - 1].y);
-    for (p = 0; p < points.length; p++) {
-      _lineTo(points[p].x, points[p].y);
-      var n = (p - 1) % (points.length - 1);
-      _letterFor(points[p], points[(p + points.length - 1 - 1) % (points.length - 1)], points[(p + 1) % (points.length - 1)]);
+    _moveTo(shape.points[shape.points.length - 1].x, shape.points[shape.points.length - 1].y);
+    for (p = 0; p < shape.points.length; p++) {
+      _lineTo(shape.points[p].x, shape.points[p].y);
+      var n = (p - 1) % (shape.points.length - 1);
+      _letterFor(shape.points[p], shape.points[(p + shape.points.length - 1 - 1) % (shape.points.length - 1)], shape.points[(p + 1) % (shape.points.length - 1)]);
     }
-    _lineTo(points[0].x, points[0].y);
+    _lineTo(shape.points[0].x, shape.points[0].y);
     ctx.stroke();
+    ctx.setLineDash([]);
   };
     
   //-----------------------------------------------------------------------------
@@ -133,12 +139,14 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
   //-----------------------------------------------------------------------------
   function _rescale() {
     var max = 0;
-    for (p = 0; p < $scope.shapes.length; p++) {
-        if (Math.abs($scope.shapes[p].x) > max) {
-            max = Math.ceil(Math.abs($scope.shapes[p].x));
-        }
-        if (Math.abs($scope.shapes[p].y) > max) {
-            max = Math.ceil(Math.abs($scope.shapes[p].y));
+    for (s = 0; s < $scope.shapes.length; s++) {
+        for (p = 0; p < $scope.shapes[s].points.length; p++) {
+            if (Math.abs($scope.shapes[s].points[p].x) > max) {
+                max = Math.ceil(Math.abs($scope.shapes[s].points[p].x));
+            }
+            if (Math.abs($scope.shapes[s].points[p].y) > max) {
+                max = Math.ceil(Math.abs($scope.shapes[s].points[p].y));
+            }
         }
     }
     $scope.nMax = max + Math.ceil(20 / (maxX / max));
@@ -148,25 +156,45 @@ app.controller('ShapesController', ['$scope', '$http', '$rootScope', '$window', 
   $scope.onDrawClicked = function() {
     _rescale();
     $scope.clearPlan();
-    $scope.drawPolygon($scope.shapes);
+    for (s = 0; s < $scope.shapes.length; s++) {
+        $scope.drawPolygon($scope.shapes[s]);
+    }
     if ($window.localStorage) {
         $window.localStorage.setItem('shapes', angular.toJson($scope.shapes));
     }
   };
   
   //-----------------------------------------------------------------------------
-  $scope.onAddLineClicked = function() {
-    $scope.shapes.push({});
+  $scope.onAddPointClicked = function(shape) {
+    shape.points.push({});
   }
 
   //-----------------------------------------------------------------------------
-  $scope.onRemoveLineClicked = function() {
-    $scope.shapes.splice(-1);
+  $scope.onRemovePointClicked = function(shape) {
+    shape.points.splice(-1);
   }
 
   //-----------------------------------------------------------------------------
-  $scope.removeLineDisabled = function() {
-    return $scope.shapes.length <= 3;
+  $scope.removePointDisabled = function(shape) {
+    return shape.points.length <= 3;
+  }
+
+  //-----------------------------------------------------------------------------
+  $scope.onAddShapeClicked = function() {
+    $scope.shapes.push({
+        dash: false,
+        points:[{}]
+    });
+  }
+
+  //-----------------------------------------------------------------------------
+  $scope.onRemoveShapeClicked = function($index) {
+    $scope.shapes.splice($index);
+  }
+
+  //-----------------------------------------------------------------------------
+  $scope.removeShapeDisabled = function() {
+    return $scope.shapes.length <= 1;
   }
 
 }]);    
