@@ -16,16 +16,27 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', '$window
     var ctx = canvas.getContext("2d");
     ctx.setTransform(1, 0, 0, 1, maxX, maxY);
 
-    $scope.points = [];
+    $scope.shapes = [];
 
-    if ($window.localStorage && $window.localStorage.getItem('points')) {
-         $scope.points = angular.fromJson($window.localStorage.getItem('points'));
+    $scope.adjustIcons = [
+      'glyphicon glyphicon-move',
+      'glyphicon glyphicon-triangle-left',
+      'glyphicon glyphicon-triangle-bottom',
+      'glyphicon glyphicon-triangle-right',
+      'glyphicon glyphicon-triangle-top'
+  ];
+
+  if ($window.localStorage && $window.localStorage.getItem('cartesianShapes')) {
+         $scope.shapes = angular.fromJson($window.localStorage.getItem('cartesianShapes'));
     } else {
-        $scope.points = [
+        $scope.shapes = [{
+          dash: false,
+          points: [
             {x:-9, y:-9, l:'A'}, 
             {x:9, y:-9, l:'B'}, 
             {x:0, y:9, l:'C'}
-        ];
+          ]
+        }];
     }
 
     //-----------------------------------------------------------------------------
@@ -50,7 +61,7 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', '$window
     };
 
     //-----------------------------------------------------------------------------
-    function _letterFor(point, prev, next) {
+    function _letterForVertex(point, prev, next) {
         if (!point.l)
         return;
         var xShift = 0;
@@ -67,10 +78,51 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', '$window
         ctx.fillText(point.l, point.x * _getScale() +xShift, -point.y * _getScale() + yShift);
     }
 
+        
+    //-----------------------------------------------------------------------------
+    function _letterForLine(point, other) {
+      if (!point.l)
+          return;
+      var xShift = 0;
+      var yShift = 0;
+      if (point.x < other.x)
+          xShift = -20;
+      else if (point.x > other.x)
+          xShift = 3;
+      else if (point.y < other.y)
+          yShift = 20;
+      else if (point.y > other.y)
+          yShift = -3;
+
+      ctx.fillText(point.l, point.x * _getScale() +xShift, -point.y * _getScale() + yShift);
+  }
+
+  //-----------------------------------------------------------------------------
+  function _letterForPoint(point) {
+    if (!point.l)
+        return;
+    var xShift = 0;
+    var yShift = 0;
+    if (point.adjust === 0)
+        xShift = 6;
+    else if (point.adjust === 1)
+        xShift = -20;
+    else if (point.adjust === 2) {
+        yShift = -25;
+        xShift = -6;
+    }
+    else if (point.adjust === 3)
+        xShift = 6;
+    else if (point.adjust === 4) {
+        yShift = 6;
+        xShift = -6;
+    }
+
+    ctx.fillText(point.l, point.x * _getScale() +xShift, -point.y * _getScale() - yShift);
+  }
+
   //-----------------------------------------------------------------------------
   $scope.drawPlan = function() {
-    // ctx.setTransform(1, 0, 0, -1, maxX, maxY);
-    // ctx.setTransform(1, 0, 0, 1, maxX, maxY);
     ctx.lineWidth=0.2;
     ctx.moveTo(-maxX,0);
     ctx.lineTo(maxX,0);
@@ -113,36 +165,60 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', '$window
 
   // points = [ {x:x, y:y}, ...]
   //-----------------------------------------------------------------------------
-  $scope.drawPolygon = function(points) {
-    if (points.length < 3)
+  $scope.drawPolygon = function(shape) {
+    if (shape.points.length < 3)
       return;
+    if (shape.dash)
+        ctx.setLineDash([10, 10]);
     ctx.lineWidth=1;
     ctx.beginPath();
-    _moveTo(points[points.length - 1].x, points[points.length - 1].y);
-    for (p = 0; p < points.length; p++) {
-      _lineTo(points[p].x, points[p].y);
-      var n = (p - 1) % (points.length - 1);
-      _letterFor(points[p], points[(p + points.length - 1 - 1) % (points.length - 1)], points[(p + 1) % (points.length - 1)]);
+    _moveTo(shape.points[shape.points.length - 1].x, shape.points[shape.points.length - 1].y);
+    for (p = 0; p < shape.points.length; p++) {
+      _lineTo(shape.points[p].x, shape.points[p].y);
+      var n = (p - 1) % (shape.points.length - 1);
+      _letterForVertex(shape.points[p], shape.points[(p + shape.points.length - 1 - 1) % (shape.points.length - 1)], shape.points[(p + 1) % (shape.points.length - 1)]);
     }
-    _lineTo(points[0].x, points[0].y);
+    _lineTo(shape.points[0].x, shape.points[0].y);
     ctx.stroke();
+    ctx.setLineDash([]);
   };
     
   //-----------------------------------------------------------------------------
-  $scope.drawPoint = function(x, y) { 
-      _pointAt(x, y);
+  $scope.drawLine = function(shape) {
+    if (shape.points.length != 2)
+      return;
+    if (shape.dash)
+        ctx.setLineDash([10, 10]);
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    _moveTo(shape.points[0].x, shape.points[0].y);
+    _lineTo(shape.points[1].x, shape.points[1].y);
+    _letterForLine(shape.points[0], shape.points[1]);
+    _letterForLine(shape.points[1], shape.points[0]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  };
+    
+  //-----------------------------------------------------------------------------
+  $scope.drawPoint = function(shape) {
+    if (shape.points.length != 1)
+      return;
+    _pointAt(shape.points[0].x, shape.points[0].y);
+    _letterForPoint(shape.points[0]);
   }
       
   //-----------------------------------------------------------------------------
   function _rescale() {
     var max = 0;
-    for (p = 0; p < $scope.points.length; p++) {
-        if (Math.abs($scope.points[p].x) > max) {
-            max = Math.ceil(Math.abs($scope.points[p].x));
-        }
-        if (Math.abs($scope.points[p].y) > max) {
-            max = Math.ceil(Math.abs($scope.points[p].y));
-        }
+    for (s = 0; s < $scope.shapes.length; s++) {
+      for (p = 0; p < $scope.shapes[s].points.length; p++) {
+          if (Math.abs($scope.shapes[s].points[p].x) > max) {
+              max = Math.ceil(Math.abs($scope.shapes[s].points[p].x));
+          }
+          if (Math.abs($scope.shapes[s].points[p].y) > max) {
+              max = Math.ceil(Math.abs($scope.shapes[s].points[p].y));
+          }
+      }
     }
     $scope.nMax = max + Math.ceil(20 / (maxX / max));
   }
@@ -151,25 +227,51 @@ app.controller('CartesianController', ['$scope', '$http', '$rootScope', '$window
   $scope.onDrawClicked = function() {
     _rescale();
     $scope.clearPlan();
-    $scope.drawPolygon($scope.points);
+    for (s = 0; s < $scope.shapes.length; s++) {
+      if ($scope.shapes[s].points.length == 1) {
+        $scope.drawPoint($scope.shapes[s]);
+      } else if ($scope.shapes[s].points.length == 2) {
+        $scope.drawLine($scope.shapes[s]);
+      } else {
+        $scope.drawPolygon($scope.shapes[s]);
+      }
+    }
     if ($window.localStorage) {
-        $window.localStorage.setItem('points', angular.toJson($scope.points));
+        $window.localStorage.setItem('cartesianShapes', angular.toJson($scope.shapes));
     }
   };
   
   //-----------------------------------------------------------------------------
-  $scope.onAddLineClicked = function() {
-      $scope.points.push({});
+  $scope.onAddLineClicked = function(shape) {
+    shape.points.push({});
   }
 
   //-----------------------------------------------------------------------------
-  $scope.onRemoveLineClicked = function() {
-    $scope.points.splice(-1);
+  $scope.onRemoveLineClicked = function(shape) {
+    shape.points.splice(-1);
   }
 
   //-----------------------------------------------------------------------------
-  $scope.removeLineDisabled = function() {
-    return $scope.points.length <= 3;
+  $scope.removeLineDisabled = function(shape) {
+    return shape.points.length <= 1;
   }
 
+  //-----------------------------------------------------------------------------
+  $scope.onAddShapeClicked = function() {
+    $scope.shapes.push({
+        dash: false,
+        points:[{}]
+    });
+  }
+
+  //-----------------------------------------------------------------------------
+  $scope.onRemoveShapeClicked = function($index) {
+    $scope.shapes.splice($index, 1);
+  }
+
+  //-----------------------------------------------------------------------------
+  $scope.removeShapeDisabled = function() {
+    return $scope.shapes.length <= 1;
+  }
+  
 }]);    
